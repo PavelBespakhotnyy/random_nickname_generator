@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <time.h>
+
+unsigned int	ft_random_number(int maxn)
+{
+	unsigned int	r;
+	struct	timeval t;
+
+	gettimeofday(&t, NULL);
+	unsigned int seed = t.tv_sec * 1000000 + t.tv_usec;
+	srand(seed);
+
+	r = rand() % (maxn + 1);
+	return (r);
+}
 
 int	ft_fcount_lines(FILE *f)
 {
@@ -17,67 +31,59 @@ int	ft_fcount_lines(FILE *f)
 	return (count);
 }
 
-int	ft_adj(void)
+int	ft_frandom_word(char *filename)
 {
-	FILE	*adj;
+	FILE	*f;
 	int	counter;
-	int	r;
-	int	c;
+	unsigned int	flines;
+	unsigned int	r;
+	unsigned int	c;
+	int	capital;
 
-	counter = 0;
-	adj = fopen("adjectives.txt", "r");
-	srand(time(NULL));
-	r = rand() % (ft_fcount_lines(adj) + 1);
-	if (!adj)
+	capital = 1;
+	f = fopen(filename, "r");
+	flines = ft_fcount_lines(f);
+	r = ft_random_number(flines);
+	if (!f)
 	{
-		perror("adjectives.txt");
+		perror(filename);
 		return (1);
 	}
 
-	adj = fopen("adjectives.txt", "r");
-	while ((c = fgetc(adj)) != EOF)
-	{
-		if ((counter == r) && (c != '\n'))
-			printf("%c", c);
-		if (c == '\n')
-			counter++;
-	}
-	return (0);
-}
-
-int	ft_noun(void)
-{
-	FILE	*noun;
-	int	counter;
-	int	r;
-	int	c;
-
+	f = fopen(filename, "r");
 	counter = 0;
-	noun = fopen("nouns.txt", "r");
-	srand(time(NULL));
-	r = rand() % (ft_fcount_lines(noun) + 1);
-	if (!noun)
-	{
-		perror("nouns.txt");
-		return (1);
-	}
-
-	noun = fopen("nouns.txt", "r");
-	while ((c = fgetc(noun)) != EOF)
+	while ((c = fgetc(f)) != EOF)
 	{
 		if ((counter == r) && (c != '\n'))
-			printf("%c", c);
+		{
+			if (capital == 1)
+			{
+				printf("%c", c - 32);
+				capital = 0;
+			}
+			else
+				printf("%c", c);
+		}
 		if (c == '\n')
 			counter++;
 	}
+	fclose(f);
 	return (0);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
-	ft_adj();
-	ft_noun();
-	printf("\n");
+	int	ncount;
+
+	if (argc != 2)
+		return (0);
+	ncount = atoi(argv[1]);
+	for (int n = 0; n < ncount; n++)
+	{
+		ft_frandom_word("adjectives.txt");
+		ft_frandom_word("nouns.txt");
+		printf("\n");
+	}
 
 	return (0);
 }
